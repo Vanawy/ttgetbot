@@ -17,8 +17,9 @@ bot.catch((err, ctx) => {
 bot.on('text', async ctx => {
     const url = ctx.update.message.text;
     if (!url.match(longUrl) && !url.match(shortUrl)) {
-        ctx.reply("I cant get video from this link, make sure it is tiktok url");
+        ctx.reply('I cant get video from this link, make sure it is tiktok url');
     }
+    console.log(url);
     const videoMeta = await tt.getVideoMeta(url);
     console.log(videoMeta);
     const fileUrl = videoMeta.videoUrl;
