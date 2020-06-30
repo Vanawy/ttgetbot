@@ -21,7 +21,6 @@ bot.on('text', async ctx => {
     }
     console.log(url);
     const videoMeta = await tt.getVideoMeta(url);
-    console.log(videoMeta);
     const fileUrl = videoMeta.videoUrl;
     ctx.replyWithVideo(fileUrl, {
         caption: videoMeta.text,
