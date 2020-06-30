@@ -34,4 +34,33 @@ bot.on('text', ctx => {
         });
 });
 
+
+bot.on('inline_query', ctx => {
+    const url = ctx.update.inline_query.query;
+    if (!url.match(longUrl) && !url.match(shortUrl)) {
+        ctx.answerInlineQuery([]);
+        return;
+    }
+    console.log(url);
+    tt.getVideoMeta(url)
+        .then(videoMeta => {
+            console.log(videoMeta);
+            const title = `${videoMeta.text} | tt: ${videoMeta.authorMeta.name}`;
+            const video = {
+                type: 'video',
+                id: 1,
+                mime_type: 'video/mp4',
+                thumb_url: videoMeta.imageUrl,
+                video_url: videoMeta.videoUrl,
+                caption: title,
+                title: title,
+            };
+            ctx.answerInlineQuery([video]);
+        })
+        .catch(reason => {
+            console.log(reason);
+            ctx.answerInlineQuery([]);
+        });
+});
+
 bot.launch();
