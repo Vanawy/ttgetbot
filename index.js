@@ -14,17 +14,24 @@ bot.hears('hi', (ctx) => ctx.reply('Hello there!'))
 bot.catch((err, ctx) => {
     console.log(`Ooops, encountered an error for ${ctx.updateType}`, err);
 })
-bot.on('text', async ctx => {
+bot.on('text', ctx => {
     const url = ctx.update.message.text;
     if (!url.match(longUrl) && !url.match(shortUrl)) {
         ctx.reply('I cant get video from this link, make sure it is tiktok url');
+        return;
     }
     console.log(url);
-    const videoMeta = await tt.getVideoMeta(url);
-    const fileUrl = videoMeta.videoUrl;
-    ctx.replyWithVideo(fileUrl, {
-        caption: videoMeta.text,
-    });
+    tt.getVideoMeta(url)
+        .then(videoMeta => {
+            const fileUrl = videoMeta.videoUrl;
+            ctx.replyWithVideo(fileUrl, {
+                caption: videoMeta.text,
+            });
+        })
+        .catch(reason => {
+            console.error(reason);
+            ctx.reply('Can\'t extract metadata');
+        });
 });
 
 bot.launch();
