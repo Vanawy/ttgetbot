@@ -29,7 +29,7 @@ bot.on('text', ctx => {
             });
         })
         .catch(reason => {
-            console.error(reason);
+            console.log(reason);
             ctx.reply('Can\'t extract metadata');
         });
 });
