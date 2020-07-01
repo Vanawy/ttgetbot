@@ -44,8 +44,7 @@ bot.on('inline_query', ctx => {
     console.log(url);
     tt.getVideoMeta(url)
         .then(videoMeta => {
-            console.log(videoMeta);
-            const title = `${videoMeta.text} | tt: ${videoMeta.authorMeta.name}`;
+            const title = `${videoMeta.text} | ${videoMeta.authorMeta.name}`;
             const video = {
                 type: 'video',
                 id: 1,
