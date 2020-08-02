@@ -14,6 +14,8 @@ Inline mode \\(In chat with someone\\):
 \`@${bot} @username\` \\- find last posts from user
 \`@${bot} #hashtag\` \\- find last posts with hashtag
 \`@${bot} link\` \\- find video by link
+
+Author: @${process.env.DEVELOPER_NICKNAME}
 `;
     ctx.reply(text, {
         parse_mode: 'MarkdownV2'
@@ -30,11 +32,11 @@ bot.catch((err, ctx) => {
 
 
 const longUrl = /^https:\/\/www.tiktok.com\/@.+\/video\/\d+/i;
-const shortUrl = /^https:\/\/vm.tiktok.com\/.+\/?/i;
+const shortUrl = /^https:\/\/\w+.tiktok.com\/.+\/?/i;
 bot.on('text', ctx => {
     const url = ctx.update.message.text;
     if (!url.match(longUrl) && !url.match(shortUrl)) {
-        ctx.reply('I cant get video from this link, make sure it is tiktok url');
+        ctx.reply(`I cant get video from this link, make sure it is tiktok url or report an issue in DM: @${process.env.DEVELOPER_NICKNAME}`);
         return;
     }
     console.log(url);
