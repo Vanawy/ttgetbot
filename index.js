@@ -1,4 +1,7 @@
 require('dotenv').config();
+const { default: Axios } = require('axios');
+const Path = require('path');
+const Fs = require('fs');
 const { Telegraf } = require('telegraf');
 const tt = require('tiktok-scraper');
 
@@ -11,6 +14,7 @@ Send me a link to TikTok
 Commands:
 /help \\- for this message
 Inline mode \\(In chat with someone\\):
+Currently don't work
 \`@${bot} @username\` \\- find last posts from user
 \`@${bot} #hashtag\` \\- find last posts with hashtag
 \`@${bot} link\` \\- find video by link
@@ -43,88 +47,60 @@ bot.on('text', ctx => {
     tt.getVideoMeta(url)
         .then(videoMeta => {
             const fileUrl = videoMeta.videoUrl;
-            ctx.replyWithVideo(fileUrl, {
-                caption: videoMeta.text,
+            const name = videoMeta.id + '_' + Date.now() + '.mp4';
+            const title = `${videoMeta.text} | ${videoMeta.authorMeta.name}`;
+
+            const request = Axios({
+                method: 'GET',
+                url: fileUrl,
+                responseType: 'stream',
+                headers: {
+                    Referer: url,
+                }
             });
+
+            request
+                .then(response => {
+                    const path = Path.resolve(__dirname, 'downloads', name);
+                    const writer = Fs.createWriteStream(path);
+
+                    response.data.pipe(writer);
+        
+                    return new Promise((resolve, reject) => {
+
+                        writer.on('finish', () => {
+                            console.log(path);
+                            resolve(path);
+                        })
+        
+                        writer.on('error', err => {
+                            reject(err);
+                        })
+                    });
+                })
+                .then(path => {
+                    return ctx.replyWithVideo({
+                        source: Fs.createReadStream(path),
+                        filename: name,
+                    }, {
+                        caption: title,
+                    })
+                    .then(result => {
+                        Fs.unlink(path, _ => console.log('deleted.'));
+                        return result;
+                    });
+                })
+                .then(result => {
+                    const file_id = result.video.file_id;
+                    const thumb_file_id = result.video.thumb.file_id;
+                    // TODO: Store it to DB
+                })
+            ;
         })
         .catch(reason => {
             console.log(reason);
             ctx.reply('Can\'t extract metadata');
         });
 });
-
-
-bot.on('inline_query', ctx => {
-    const query = ctx.update.inline_query.query;
-    console.log(query);
-    if (query.match(longUrl) || query.match(shortUrl)) {
-        answerWithVideo(ctx, query);
-        return;
-    }
-    if (query.startsWith("@")) {
-        const username = query.slice(1);
-        answerWithUserVideos(ctx, username);
-        return;
-    }
-    if (query.startsWith("#")) {
-        const hastag = query.slice(1);
-        answerWithHashtagVideos(ctx, hastag);
-        return;
-    }
-    ctx.answerInlineQuery([]);
-});
-
-function answerWithUserVideos(ctx, username) {
-    answerWithVideos(ctx, tt.user(username, { number: 10 }));
-}
-
-function answerWithHashtagVideos(ctx, hashtag) {
-    answerWithVideos(ctx, tt.hashtag(hashtag, { number: 10 }));
-}
-
-function answerWithVideos(ctx, data) {
-    data
-        .then(data => data.collector)
-        .then(videos => {
-            let result = [];
-            let id = 0;
-            for (let video of videos) {
-                const videoObject = createVideoObject(video, id++);
-                result.push(videoObject);
-            }
-            ctx.answerInlineQuery(result);
-        })
-        .catch(error => {
-            console.log(error);
-            ctx.answerInlineQuery([])
-        });
-}
-
-function answerWithVideo(ctx, url) {
-    return tt.getVideoMeta(url)
-        .then(videoMeta => {
-            const video = createVideoObject(videoMeta);
-            ctx.answerInlineQuery([video]);
-        })
-        .catch(error => {
-            console.log(error);
-            ctx.answerInlineQuery([]);
-        });
-}
-
-function createVideoObject(video, id = 0) {
-    const title = `${video.text} | ${video.authorMeta.name}`;
-    const videoObject = {
-        type: 'video',
-        id: id,
-        mime_type: 'video/mp4',
-        thumb_url: video.covers.default,
-        video_url: video.videoUrl,
-        caption: title,
-        video_duration: video.videoMeta.duration,
-        title: title,
-    };
-    return videoObject;
-}
 
 bot.launch();
