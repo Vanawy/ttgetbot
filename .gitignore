@@ -80,3 +80,5 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
+downloads/*.mp4
+
