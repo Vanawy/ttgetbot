@@ -2,5 +2,7 @@
 
 [Try it!](https://t.me/ttgetbot)
 
-
-Sadly bot doesnt work. All it's get is 403 from tiktok, I still didn't figure out how to fix this.
+# TODO:
+- [X] Fix 403 from tiktok (Add "Referer" to headers)
+- [ ] Fix Inline mode
+- [ ] Add result cache
