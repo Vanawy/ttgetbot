@@ -2,7 +2,10 @@
 
 [Try it!](https://t.me/ttgetbot)
 
-# TODO:
+# TODO
 - [X] Fix 403 from tiktok (Add "Referer" to headers)
 - [ ] Fix Inline mode
 - [ ] Add result cache
+
+# Requirements
+- NodeJS
