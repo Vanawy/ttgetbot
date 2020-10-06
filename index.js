@@ -100,7 +100,8 @@ bot.on('text', ctx => {
         .catch(reason => {
             console.log(reason);
             ctx.reply('Can\'t extract metadata');
-        });
+        })
+    ;
 });
 
 bot.launch();

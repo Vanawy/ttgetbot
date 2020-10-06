@@ -1,0 +1,9 @@
+{
+    "script": "node index.js",
+    "watch": true,
+    "ignore_watch": ["downloads"],
+    "watch_options": {
+        "followSymlinks": false
+    },
+    "name": "ttgetbot"
+}
