@@ -4,31 +4,21 @@ const Path = require('path');
 const Fs = require('fs');
 const { Telegraf } = require('telegraf');
 const tt = require('tiktok-scraper');
-
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-function helpText(ctx) {
-    const bot = ctx.botInfo.username;
-    const text = `
-Send me a link to TikTok
-Commands:
-/help \\- for this message
-Inline mode \\(In chat with someone\\):
-Currently don't work
-\`@${bot} @username\` \\- find last posts from user
-\`@${bot} #hashtag\` \\- find last posts with hashtag
-\`@${bot} link\` \\- find video by link
+const Texts = require('./texts.js')
+const texts = new Texts({
+    bot_name: process.env.BOT_NICKNAME,
+    developer_name: process.env.DEVELOPER_NICKNAME,
+});
 
-Author: @${process.env.DEVELOPER_NICKNAME}
-`;
-    ctx.reply(text, {
+function helpText(ctx) {
+    ctx.reply(texts.help, {
         parse_mode: 'MarkdownV2'
     })
 }
-
 bot.start(helpText);
 bot.help(helpText);
-bot.hears('hi', (ctx) => ctx.reply('Hello there!'))
 
 bot.catch((err, ctx) => {
     console.log(`Ooops, encountered an error for ${ctx.updateType}`, err);
@@ -40,7 +30,7 @@ const shortUrl = /^https:\/\/\w+.tiktok.com\/.+\/?/i;
 bot.on('text', ctx => {
     const url = ctx.update.message.text;
     if (!url.match(longUrl) && !url.match(shortUrl)) {
-        ctx.reply(`I cant get video from this link, make sure it is tiktok url or report an issue in DM: @${process.env.DEVELOPER_NICKNAME}`);
+        ctx.reply(texts.wrong_url);
         return;
     }
     console.log(url);
